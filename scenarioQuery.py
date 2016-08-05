@@ -54,19 +54,19 @@ def addScenarioWord(originalQueryFile, scenarioWordsList, scenarioQueryFile):
     for line in fp.readlines():
         lineArr = line.strip().split('\t')
         if int(lineArr[0])>0 and int(lineArr[0])<11:
-            scenarioQuery += lineArr[0]+'\t'+scenarioWordsList[0]+' '+lineArr[1]+'\n'
+            scenarioQuery += lineArr[0]+'\t'+lineArr[1]+' '+scenarioWordsList[0]+'\n'
         elif int(lineArr[0])>10 and int(lineArr[0])<21:
-            scenarioQuery += lineArr[0]+'\t'+scenarioWordsList[1]+' '+lineArr[1]+'\n'
+            scenarioQuery += lineArr[0]+'\t'+lineArr[1]+' '+scenarioWordsList[1]+'\n'
         elif int(lineArr[0])>20 and int(lineArr[0])<31:
-            scenarioQuery += lineArr[0]+'\t'+scenarioWordsList[2]+' '+lineArr[1]+'\n'
+            scenarioQuery += lineArr[0]+'\t'+lineArr[1]+' '+scenarioWordsList[2]+'\n'
     support.saveFile(scenarioQuery, scenarioQueryFile)
     return 0
 
 if __name__ == "__main__":  
     #interSetResult('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_title.txt',
      #              'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Scenario\\parse_title.txt')
-     addScenarioWord('I:\\bibm2016\\experiments\\GoogleSearch\\data\\2015.CDSid_queryOriginal.txt',
+     addScenarioWord('I:\\bibm2016\\experiments\\GoogleSearch\\data\\2014.CDSid_queryOriginal.txt',
                      ['diagnosis','test','treatment'],
-                     'I:\\bibm2016\\experiments\\GoogleSearch\\data\\2015.CDSid_Scenarioquery.txt')
+                     'I:\\bibm2016\\experiments\\GoogleSearch\\data\\2014.CDSid_queryScenario.txt')
     
     

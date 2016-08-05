@@ -181,54 +181,59 @@ def selectExpansionWordsByNormalTfIdf(expansionWordsCollect, termCountThreshold,
         print queryId, expansionWordsSelect[queryId]
     return expansionWordsSelect
 
-def extractOriginalWords(originalQueryFile):
-    originalWords = {}
-    fp = open(originalQueryFile)
-    for line in fp.readlines():
-        lineArr = line.strip().split(' ')
-        if lineArr[0]=='<num>':
-            queryId = lineArr[2]
-            originalWords[queryId] = []
-        if len(lineArr)>4:
-            querySentence = support.removePunctuation(str(line.strip()))
-            queryWordList = querySentence.strip().split(' ')
-            for word in queryWordList:
-                originalWords[queryId].append(word)
-    
-    return originalWords
-
-def combineExpansionOriginalWords(originalWords, expansionWordsSelect, hasWeight, weightOriginalWords, combineQueryFile):
+def combineExpansionOriginalWordsWeightSame(originalWords, expansionWordsSelect, hasWeight, weightExpansionWords, combineQueryFile):
     queryExpansionContent = ''
     if hasWeight=='no':
         for queryId in range(1,len(originalWords)+1):
             queryExpansionContent += '<top>\n\n'+'<num> Number: '+str(queryId)+'\n\n'+'<desc>\n\n'
-            for originalWordIndex in range(len(originalWords[str(queryId)])):  
+            lengthOrigialWords = len(originalWords[str(queryId)])
+            lengthExpansionWords = len(expansionWordsSelect[str(queryId)])
+            for originalWordIndex in range(lengthOrigialWords):  
                 queryExpansionContent += originalWords[str(queryId)][originalWordIndex]+' '#+'\n\n'+r'</top>'+'\n\n'
-            for expansionWordIndex in range(len(expansionWordsSelect[str(queryId)])):
+            for expansionWordIndex in range(lengthExpansionWords):
                 queryExpansionContent += expansionWordsSelect[str(queryId)][expansionWordIndex] + ' '
             queryExpansionContent += '\n\n'+r'</top>'+'\n\n'
         #print queryExpansionContent
+    elif hasWeight=='yes':
+        for queryId in range(1,len(originalWords)+1):
+            queryExpansionContent += '<top>\n\n'+'<num> Number: '+str(queryId)+'\n\n'+'<desc>\n\n'
+            lengthOrigialWords = len(originalWords[str(queryId)])
+            lengthExpansionWords = len(expansionWordsSelect[str(queryId)])
+            for originalWordIndex in range(lengthOrigialWords):  
+                queryExpansionContent += originalWords[str(queryId)][originalWordIndex]+'^'+str(1-weightExpansionWords)+' '#+'\n\n'+r'</top>'+'\n\n'
+            for expansionWordIndex in range(lengthExpansionWords):
+                queryExpansionContent += expansionWordsSelect[str(queryId)][expansionWordIndex]+'^'+str(weightExpansionWords)+' '
+            queryExpansionContent += '\n\n'+r'</top>'+'\n\n'
     support.saveFile(queryExpansionContent.replace('xray', 'x-ray'), combineQueryFile)
     return 0
 
-if __name__ == "__main__":  
-    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\Scenario2015\\parse_title.txt',
-                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\Scenario2015\\parse_snip.txt')
+def adjustWeight(lowIndex, highIndex, unit, originalWords, expansionWordsSelect):
+    for expansionWordsWeight in range(lowIndex, highIndex+1, unit):
+        combineExpansionOriginalWordsWeightSame(originalWords, 
+                                                expansionWordsSelect, 
+                                                'yes', 
+                                                expansionWordsWeight*1.0/10, 
+                                                'I:\\bibm2016\\experiments\\cds2015\\query\\2015HowToScenarioGoogleMeshNormal_01_3_0'+str(expansionWordsWeight)+'.query')
+    return 0
 
-    originalWords = extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
+if __name__ == "__main__":  
+    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2015\\parse_title.txt',
+                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2015\\parse_snip.txt')
+
+    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
     
     
     
     
-    expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\Scenario2015\\parse_title.txt',
-                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\Scenario2015\\parse_snip.txt')  
+    expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2015\\parse_title.txt',
+                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2015\\parse_snip.txt')  
 
     expansionMeshWordsCollect = meshExpansionWordsAddstatisticInformation(expansionWordsCollect, expansionMeshWordsCollect)
     expansionWordsSelect = selectExpansionWordsByNormalTfIdf(expansionMeshWordsCollect, 
                                                 0.1, 
                                                 3)
-    #combineExpansionOriginalWords(originalWords, expansionWordsSelect, 'no', 0.1, 'I:\\bibm2016\\experiments\\cds2015\\query\\2015GoogleOriginalMeshNormal_01_4.query')
-    combineExpansionOriginalWords(originalWords, expansionWordsSelect, 'no', 0.1, 'I:\\bibm2016\\experiments\\cds2015\\query\\2015ScenarioGoogleMeshNormal_01_3.query')
+    #combineExpansionOriginalWordsWeightSame(originalWords, expansionWordsSelect, 'no', 0.1, 'I:\\bibm2016\\experiments\\cds2015\\query\\2015GoogleOriginalMeshNormal_01_4.query')
+    adjustWeight(1,9,1, originalWords, expansionWordsSelect)
     
     
     

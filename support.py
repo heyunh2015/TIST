@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 import os,re
 SystemPathSeperator = '\\'
 
@@ -36,7 +37,7 @@ def printDict(dict, levelNumber):
                 print i,j,dict[i][j]
                 
 def removePunctuation(text):
-    r='[¡¯!"#$%&\'()*+,.¡¤/:;<=>?@[\\]^_`{|}~]+'
+    r='[ï¿½ï¿½!"#$%&\'()*+,.ï¿½ï¿½/:;<=>?@[\\]^_`{|}~]+'
     text = re.sub(r,'',text)
     text = re.sub('  ',' ',text)
     text = re.sub('-',' ',text)
@@ -103,4 +104,32 @@ def sentenceLower(sentence):
         sentenceLowerConetent += word.lower() + ' '
     sentenceLowerConetent = sentenceLowerConetent.strip()
     return sentenceLowerConetent
+
+def getResultFileNameFromFolder(folderName):
+    filesNameList = listDir(folderName)
+    return filesNameList
+
+def getResultFileNameFromFile(folderName, resultNamesFile):
+    SystemPathSeperator = '\\'
+    filesNameList = []
+    fp =open(resultNamesFile)
+    for line in fp.readlines():
+        filesNameList.append(folderName + SystemPathSeperator + str(line).strip())
+    return filesNameList
+
+def extractOriginalWords(originalQueryFile):
+    originalWords = {}
+    fp = open(originalQueryFile)
+    for line in fp.readlines():
+        lineArr = line.strip().split(' ')
+        if lineArr[0]=='<num>':
+            queryId = lineArr[2]
+            originalWords[queryId] = []
+        if len(lineArr)>4:
+            querySentence = removePunctuation(str(line.strip()))
+            queryWordList = querySentence.strip().split(' ')
+            for word in queryWordList:
+                originalWords[queryId].append(word)
+    
+    return originalWords
     
