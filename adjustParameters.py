@@ -1,5 +1,5 @@
 import support
-import operator
+import operator, copy
 
 def collectExpansionWords(titleFile, snipFile):
     stopWordsDic = support.loadStopWord()
@@ -41,11 +41,40 @@ def collectExpansionWords(titleFile, snipFile):
                                 
     return expansionWordsCollect
 
-def collectExpansionMeshTerms(titleFile, snipFile):
+def meshTermDictAddSynonym(meshTermsDict, meshTermSynonymDict):
+    meshTermsDictCopy = copy.deepcopy(meshTermsDict)
+    for meshTerm in meshTermsDict:
+        if meshTerm in meshTermSynonymDict:
+            for meshTermSynonym in meshTermSynonymDict[meshTerm]:
+                meshTermsDictCopy[meshTermSynonym] = 1
+    #support.printDict(meshTermsDict, 2)
+    return meshTermsDictCopy
+
+def loadMeshTermsSynonym():
+    meshTermSynonymDict = {}
+    meshTermSynonymFile = 'I:\\bibm2016\\experiments\\mesh\\MeSHWords.txt'
+    fp = open(meshTermSynonymFile)
+    for line in fp.readlines():
+        lineArr = line.strip().split(':')
+        meshTerm = support.removePunctuation(lineArr[0])
+        if meshTerm not in meshTermSynonymDict:
+            meshTermSynonymDict[meshTerm] = {}
+        meshTermSynonymList = lineArr[1].strip('|').split('|')
+        meshTermSynonymNumber = len(meshTermSynonymList)-1
+        if meshTermSynonymNumber>0:
+            for meshTermSynonymIndex in range(1, meshTermSynonymNumber+1):
+                meshTermSynonym = support.removePunctuation(meshTermSynonymList[meshTermSynonymIndex])
+                meshTermSynonymDict[meshTerm][meshTermSynonym] = 1
+                
+    #support.printDict(meshTermSynonymDict, 1)
+    return meshTermSynonymDict
+
+def collectExpansionMeshTerms(titleFile, snipFile, hasSynonym):
     stopWordMeshTermDict = {'pain', 'disease'}
     meshTermsDict = support.loadMeshTerms('disease')
-    #meshTermSynonymDict = loadMeshTermsSynonym()
-    #meshTermsDict = meshTermDictAddSynonym(meshTermsDict, meshTermSynonymDict) 
+    if hasSynonym=='hasSynonym':
+        meshTermSynonymDict = loadMeshTermsSynonym()
+        meshTermsDict = meshTermDictAddSynonym(meshTermsDict, meshTermSynonymDict) 
     
     fpTitle = open(titleFile)
     fpSnip = open(snipFile)
@@ -170,7 +199,7 @@ def selectExpansionWordsByNormalTfIdf(expansionWordsCollect, termCountThreshold,
                     expansionWordsSelect[queryId][itemSingle] = item[1]/maxProb
                     count += 1
                     #NormalZ += item[1]
-                    #print queryId, item[0], item[1]
+                    print queryId, item[0], item[1]
         #for expansionTerm in expansionWordsSelect[queryId]:
             #expansionWordsSelect[queryId][expansionTerm] = expansionWordsSelect[queryId][expansionTerm]/NormalZ
     expansionWordsNumber = 0
@@ -214,25 +243,26 @@ def adjustExpansionWordsNumber(expansionMeshWordsCollect):
     return 0
 
 if __name__ == "__main__":  
-    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2014\\parse_title.txt',
-                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2014\\parse_snip.txt')
+    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_title.txt',
+                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_snip.txt')
 
-    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2014\\query\\2014OriginalQuery.txt')
+    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
     
-    #expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2014Original\\parse_title.txt',
-     #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2014Original\\parse_snip.txt')  
+    expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_title.txt',
+                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_snip.txt',
+                          'hasSynonym')  
 
-    #expansionMeshWordsCollect = meshExpansionWordsAddstatisticInformation(expansionWordsCollect, expansionMeshWordsCollect)
-    expansionWordsCollect = expansionWordsAddTfIdfInformation(expansionWordsCollect)
+    expansionMeshWordsCollect = meshExpansionWordsAddstatisticInformation(expansionWordsCollect, expansionMeshWordsCollect)
+    #expansionWordsCollect = expansionWordsAddTfIdfInformation(expansionWordsCollect)
     
-    expansionWordsSelect = selectExpansionWordsByNormalTfIdf(expansionWordsCollect, 
-                                                0.018, 
+    expansionWordsSelect = selectExpansionWordsByNormalTfIdf(expansionMeshWordsCollect, 
+                                                0.07, 
                                                 3)
     
     combineExpansionOriginalWordsWeightDifferent(originalWords, 
                                                 expansionWordsSelect, 
                                                 0.5, 
-                                                'I:\\bibm2016\\experiments\\cds2014\\query\\final\\2014HowToScenarioGoogleNormal_0018_3_05.query')
+                                                'I:\\bibm2016\\experiments\\cds2015\\query\\final2\\2015GoogleOriginalMeshSynonymNormal_007_3_05.query')
     #adjustWeight(1,9,1, originalWords, expansionWordsSelect)
     #adjustExpansionWordsNumber(expansionMeshWordsCollect)
     
