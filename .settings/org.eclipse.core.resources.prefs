@@ -2,5 +2,6 @@ eclipse.preferences.version=1
 encoding/WilcoxonTest.py=utf-8
 encoding/batchSubmitQuery.py=utf-8
 encoding/googleExpansion.py=utf-8
+encoding/statisticCollection.py=utf-8
 encoding/statisticResult.py=utf-8
 encoding/support.py=utf-8
