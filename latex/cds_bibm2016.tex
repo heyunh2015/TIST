@@ -1,0 +1,255 @@
+\documentclass{IEEEtran}
+\usepackage{times}
+\usepackage{url}
+\usepackage{latexsym}
+
+\usepackage{graphicx}
+\usepackage{flushend}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{subfigure}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{tabularx}
+
+\begin{document}
+\title{Support Scenario-specific Clinical Decision By Combining Web Assistance and Medical Knowledge}
+
+\maketitle
+
+\author{First Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  {\tt email@domain} \\\And
+  Second Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  {\tt email@domain} \\}
+%Query-specific  content strengthening for Medical Records Retrieval
+
+
+\begin{abstract}
+
+\end{abstract}
+%\small
+\begin{keywords}
+
+\end{keywords}
+
+\section{Introduction}
+Physicians can utilize online medical academia databases, such as PubMed Central (PMC), to support their clinical decision. They input electronic medical records (EMRs) of patients and retrieve the database to achieve useful information from digital biomedical articles. Specifically, their information need can be divided into three question types: (1) What is the patient's diagnosis? (2) What tests should the patient receive? (3) How should the patient be treated? The three types of questions are asked in three corresponding clinical decision scenarios: diagnosis a disease, test a disease and treatment of a disease.
+
+The goal of TREC (Text REtrieval Conference) Clinical Decision Support (CDS) Tracks \cite{robertsoverview} is to support the scenario-specific clinical decision by retrieving PMC. The task requires a information retrieval (IR) system to search relevant articles in the subset of PMC for answering questions about medical records of patients. Each medical record is summarized as a topic, which contains a clinical case report and one of three scenarios: diagnosis, test and treatment. Retrieved articles are judged relevant if they contain information of the specific scenario that is pertinent to the given case.
+
+The CDS tracks have been accomplished in 2014 and 2015. In track 2015, task A is described as above. In task B, participants are provided with diagnosis of disease for the treatment and test scenario topics. The TREC authority provides two reasons that the diagnosis may improve IR systems: (1) providing additional relevant information if the diagnosis is not stated in the topic, or (2) highlighting a key piece of information if the diagnosis is stated. The authority also claims that more than one diagnosis is possible in some cases. According to our experimental results in CDS track 2015, the performance of results in task B outperforms task A with the improvements of 43.6\% on inferred normalized distributed cumulative gain (infNDCG). Note that our methods used in task A and task B are almost identical. Therefore, we assume that diagnosis of disease is helpful to the scenario-specific decision support. Intuitively, physicians can adopt exact test method or treatment project if they realize the actual diseases of patients.
+
+Hence, we are motivated to propose a novel query expansion technique which combines the statistic information from Google search engine and medical knowledge from The Medical Subject Headings (MeSH). This technique is expected to extract possible diagnosis for test and treatment scenarios and possible investigative methods for diagnosis scenario from Web resources. Moreover, we also provide a scenario-specific query rewrite method which stimulates the Google to return relevant results for the specified question type. In conclusion, our method can be regarded as a initial automatic diagnosis system. We conduct our experiments on 2014 and 2015 TREC CDS tracks. Our empirical study shows that the technique can correctly detect 4 diagnoses out of 20 topics in 2015 task B. The performance of the 4 topics achieve the improvements from 9.6\% to 196.8\% on infNDCG over BM25 \cite{robertson2009probabilistic} baseline. What's more, our method also has a promising overall performance which achieves an significant improvement over the strong baseline.
+
+In the rest of paper, we first briefly present the related work in Section 2 and retrieval task as well as data collections in Section 3. Then, we introduce the proposed approach in Section 4, including the query expansion technique combining web assistance and medical knowledge, the scenario-specific query rewrite method. After that, we show the experiments in Section 5, followed by the discussion and analysis in Section 6. Finally, we draw the conclusions and describe the future work in Section 7.
+
+\section{Related Work}
+\subsection{Query Expansion Using Medical Knowledge}
+123\cite{aronson1997query,lu2009evaluation,zhu2012improving,drame2014query,diaz2009query,jain2012enhancing,abachalist,zhangcbia,Cengage,goodwin2011cohort,zhu2011using,schuemie2011dutchhattrick,wu2011exploration,daoud2011york}
+
+\subsection{Improving Retrieval by Web Assistance}
+123\cite{kwok2005improving,el2013qcri,balaneshin2015wsu,song2015ecnu}
+
+\subsection{Scenario-specific Medical Retrieval}
+123\cite{liu2007knowledge}
+
+\section{Retrieval Task and Data}
+\subsection{TREC Clinical Decision Support Track}
+
+\subsection{Mesh Ontology}
+
+\section{Method}
+\subsection{Scenario-specific Query Rewrite}
+
+\subsection{Combining Web and Mesh to Expend Query}
+
+\section{Experiments}
+\subsection{Experimental Setup}
+\subsubsection{Data Collection}
+
+\subsubsection{Topics}
+
+\subsubsection{Experimental Implementation}
+
+\textbf{Baseline.}
+
+\textbf{Mesh.}
+
+\textbf{Google.}
+
+%\textbf{Google\_QueryRewrite1}(GoRewrite1)
+
+\textbf{Google\_Mesh}
+
+\textbf{Google\_Mesh\_QueryRewrite1}
+
+\textbf{Google\_Mesh\_QueryRewrite2}
+
+\textbf{Google\_Mesh\_QueryRewrite3}
+
+\textbf{Google\_Mesh\_QueryRewrite4}
+
+\subsection{Evaluation Metrics}
+\subsubsection{infNDCG}
+
+\subsubsection{P10}
+
+\subsection{Results}
+
+
+% Table generated by Excel2LaTeX from sheet '2014Latex'
+\begin{table*}[htbp]
+  \centering
+  \renewcommand\arraystretch{1.2}
+  \caption{Evaluation Results on TREC CDS 2015}
+    \begin{tabular}{rrrrrrr}
+    \toprule
+    Id    & Method & infNDCG &       & Significance & P@10  &  \\
+    \midrule
+    1     & Baseline & 0.1267 &       &       & 0.2494 &  \\
+    2     & Mesh  & 0.1704 & 34.5\% &       & 0.25  & 0.2\% \\
+    3     & Google & 0.207 & 21.5\% & $>Baseline$ & 0.3011 & 20.7\% \\
+    5     & Google\_Mesh & 0.2084 & 64.5\% & $>Baseline$ & 0.31  & 24.3\% \\
+    6     & Google\_Mesh\_QueryRewrite1 & 0.2048 & 61.6\% & $>Baseline$ & 0.3089 & 23.9\% \\
+    7     & Google\_Mesh\_QueryRewrite2 & 0.2149 & 69.6\% & $>Baseline$ & 0.3144 & 26.1\% \\
+    8     & Google\_Mesh\_QueryRewrite3 & 0.2101 & 65.8\% & $>Baseline$ & 0.3122 & 25.2\% \\
+    9     & Google\_Mesh\_QueryRewrite4 & 0.2067 & 63.1\% & $>Baseline$ & 0.3178 & 27.1\% \\
+    \bottomrule
+    \end{tabular}%
+  \label{tab:addlabel}%
+\end{table*}%
+
+% Table generated by Excel2LaTeX from sheet '2015Synonym Latex'
+\begin{table*}[htbp]
+  \centering
+  \renewcommand\arraystretch{1.2}
+  \caption{Evaluation Results on TREC CDS 2015}
+    \begin{tabular}{rrrrrrr}
+    \toprule
+    Id    & Method & infNDCG &       & Significance & P@10  &  \\
+    \midrule
+    1     & Baseline & 0.2135 &       &       & 0.3933 &  \\
+    2     & Mesh  & 0.2107 & -1.3\% &       & 0.3922 & -0.3\% \\
+    3     & Google & 0.234 & 11.1\% &       & 0.4022 & 2.3\% \\
+    5     & Google\_Mesh & 0.2284 & 7.0\% &       & 0.4011 & 2.0\% \\
+    6     & Google\_Mesh\_QueryRewrite1 & 0.2492 & 16.7\% & $>{Baseline, Mesh}$ & 0.4444 & 13.0\% \\
+    7     & Google\_Mesh\_QueryRewrite2 & 0.2443 & 14.4\% & $>Mesh$ & 0.4044 & 2.8\% \\
+    8     & Google\_Mesh\_QueryRewrite3 & 0.2318 & 8.6\% &       & 0.3978 & 1.1\% \\
+    9     & Google\_Mesh\_QueryRewrite4 & 0.2373 & 11.1\% & $>Mesh$ & 0.3944 & 0.6\% \\
+    \bottomrule
+    \end{tabular}%
+  \label{tab:addlabel}%
+\end{table*}%
+
+% Table generated by Excel2LaTeX from sheet 'Correct Diagnosis'
+\begin{table*}[htbp]
+  \centering
+  \renewcommand\arraystretch{1.2}
+  \caption{Results of correct diagnosis topics}
+    \begin{tabular}{rrrrrrr}
+    \toprule
+          & BM25 infNDCG & Our infNDCG &  & BM25 P10 & Our P10 &  \\
+    \midrule
+    13    & 0.3038 & 0.333 & 9.6\% & 0.7   & 0.9   & 28.6\% \\
+    26    & 0.4692 & 0.6039 & 28.7\% & 0.7   & 0.9   & 28.6\% \\
+    27    & 0.0438 & 0.13  & 196.8\% & 0     & 0     & 0.0\% \\
+    29    & 0.418 & 0.5934 & 42.0\% & 1     & 1     & 0.0\% \\
+    \bottomrule
+    \end{tabular}%
+  \label{tab:addlabel}%
+\end{table*}%
+
+
+\section{Analysis and Discussion}
+\subsection{Influence of the Proposed Method}
+\begin{figure}[htbp]
+\centering\includegraphics[width=2.9 in]{image/combine1415.pdf}
+\caption{Results Comparison on CDS 2014 and 2015}\label{fig:1}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \subfigure[Influence of correct diagnosis on P10]{
+    \label{Performances varying on theta:a} %% label for first subfigure
+    \includegraphics[width=1.5in]{image/diagnosisNDCG.pdf}}
+  %\hspace{1in}
+  \subfigure[Influence of correct diagnosis on infNDCG]{
+    \label{Performances varying on theta:b} %% label for second subfigure
+    \includegraphics[width=1.5in]{image/diagnosisP10.pdf}}
+  %\hspace{1in}
+\end{figure}
+
+\subsection{Influence of Mesh Ontology}
+\begin{figure}
+  \centering
+  \subfigure[Influence of Mesh On CDS 2014]{
+    \label{Performances varying on theta:a} %% label for first subfigure
+    \includegraphics[width=1.5in]{image/mesh1.pdf}}
+  %\hspace{1in}
+  \subfigure[Influence of Mesh On CDS 2015]{
+    \label{Performances varying on theta:b} %% label for second subfigure
+    \includegraphics[width=1.5in]{image/mesh2.pdf}}
+  %\hspace{1in}
+\end{figure}
+
+\subsection{Influence of Web Assistance}
+\begin{figure}
+  \centering
+  \subfigure[Influence of Web On CDS 2014]{
+    \label{Performances varying on theta:a} %% label for first subfigure
+    \includegraphics[width=1.5in]{image/web1.pdf}}
+  %\hspace{1in}
+  \subfigure[Influence of Web On CDS 2015]{
+    \label{Performances varying on theta:b} %% label for second subfigure
+    \includegraphics[width=1.5in]{image/web2.pdf}}
+  %\hspace{1in}
+\end{figure}
+
+\subsection{Influence of Scenario-specific Query Rewrite}
+\begin{figure}[htbp]
+\centering\includegraphics[width=2.9 in]{image/ScenarioQuery.pdf}
+\caption{ScenarioQuery}\label{fig:1}
+\end{figure}
+%\subsubsection{Comparison of Rewrite Types}
+
+%\subsubsection{Latent Topic Analysis of Rewrite Types}
+
+\subsection{Influence of Expansion Terms Weight}
+\begin{figure}
+  \centering
+  \subfigure[Influence of Expansion Terms Weight On CDS 2014]{
+    \label{Performances varying on theta:a} %% label for first subfigure
+    \includegraphics[width=1.5in]{image/weightP10.pdf}} 
+  \subfigure[Influence of Expansion Terms Weight On CDS 2015]{
+    \label{Performances varying on theta:b} %% label for second subfigure
+    \includegraphics[width=1.5in]{image/weightNDCG.pdf}}
+  %\hspace{1in}
+\end{figure}
+
+\begin{figure} 
+  \subfigure[Influence of Expansion Terms Number On CDS 2014]{
+    \label{Performances varying on theta:a} %% label for first subfigure
+    \includegraphics[width=1.5in]{image/2014number.pdf}}
+  %\hspace{1in}
+  \subfigure[Influence of Expansion Terms Number On CDS 2015]{
+    \label{Performances varying on theta:b} %% label for second subfigure
+    \includegraphics[width=1.5in]{image/2015number.pdf}}
+  %\hspace{1in}
+\end{figure}
+
+\subsection{Influence of Expansion Terms Number}
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibm2016}
+
+\end{document}
