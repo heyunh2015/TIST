@@ -41,6 +41,9 @@ def removePunctuation(text):
     text = re.sub(r,'',text)
     text = re.sub('  ',' ',text)
     text = re.sub('-',' ',text)
+    text = re.sub('—',' ',text)
+    text = re.sub('·','',text)
+    text = re.sub('•','',text)
     return text
 
 def loadStopWord():
@@ -132,4 +135,15 @@ def extractOriginalWords(originalQueryFile):
                 originalWords[queryId].append(word)
     
     return originalWords
-    
+
+
+def storeweakClassArr(inputTree,filename):
+    import pickle
+    fw = open(filename,'wb')
+    pickle.dump(inputTree, fw)
+    fw.close()
+ 
+def grabweakClassArr(filename):
+    import pickle
+    fr = open(filename, 'rb')
+    return pickle.load(fr) 

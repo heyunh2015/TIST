@@ -92,22 +92,22 @@ if __name__=='__main__':
      #                                         'I:\\bibm2016\\experiments\\cds2014\\eval\\final\\BM25b0.75_1911.res.eval',
       #                                        'infNDCG')       
     #print (z_statistic, p_value)
-    #fileList = support.getResultFileNameFromFile('I:\\bibm2016\\experiments\\cds2015\\eval\\final', 
-     #                                            'H:\\Users2016\\hy\\workspace\\bibm2016\\significanceTest\\testFile.txt')
+    fileList = support.getResultFileNameFromFile('I:\\bibm2016\\experiments\\cds2015\\eval\\final3', 
+                                                'H:\\Users2016\\hy\\workspace\\bibm2016\\significanceTest\\testFile.txt')
     
-    #for preFileIndex in range(0, len(fileList)):
-     #   for postFileIndex in range(preFileIndex+1, len(fileList)):
-      #      (z_statistic, p_value) = significanceTest(fileList[preFileIndex]+'.eval',
-       #                                               fileList[postFileIndex]+'.eval',
-        #                                              'infNDCG')
-         #   if p_value<0.05:
-          #      print fileList[preFileIndex], fileList[postFileIndex], p_value
+    for preFileIndex in range(0, len(fileList)):
+        for postFileIndex in range(preFileIndex+1, len(fileList)):
+            (z_statistic, p_value) = significanceTest(fileList[preFileIndex]+'.eval',
+                                                      fileList[postFileIndex]+'.eval',
+                                                      'P10')
+            if p_value<0.05:
+                print fileList[preFileIndex], fileList[postFileIndex], p_value
     
-    resultList = extractEvalValue('I:\\bibm2016\\experiments\\cds2015\\eval\\final2\\BM25b0.75_696.res.eval', 'iP10')
-    print resultList[12]
-    print resultList[25]
-    print resultList[26]
-    print resultList[28]
+    #resultList = extractEvalValue('I:\\bibm2016\\experiments\\cds2015\\eval\\final2\\BM25b0.75_696.res.eval', 'iP10')
+    #print resultList[12]
+    #print resultList[25]
+    #print resultList[26]
+    #print resultList[28]
   
         
         

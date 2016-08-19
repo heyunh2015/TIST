@@ -185,7 +185,6 @@ def selectExpansionWordsByNormalTfIdf(expansionWordsCollect, termCountThreshold,
             
     expansionWordsSelect = {}
     for queryId in expansionWordsCollectNormal:
-        NormalZ = 0.0
         if queryId not in expansionWordsSelect:
             expansionWordsSelect[queryId] = {}
         count = 0
@@ -243,26 +242,28 @@ def adjustExpansionWordsNumber(expansionMeshWordsCollect):
     return 0
 
 if __name__ == "__main__":  
-    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_title.txt',
-                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_snip.txt')
+    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
+                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt')
 
     originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
     
-    expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_title.txt',
-                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_snip.txt',
+    expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
+                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt',
                           'hasSynonym')  
+                            #'noSynonym')
 
     expansionMeshWordsCollect = meshExpansionWordsAddstatisticInformation(expansionWordsCollect, expansionMeshWordsCollect)
     #expansionWordsCollect = expansionWordsAddTfIdfInformation(expansionWordsCollect)
     
     expansionWordsSelect = selectExpansionWordsByNormalTfIdf(expansionMeshWordsCollect, 
-                                                0.07, 
-                                                3)
+                                                0.01, 
+                                                20)
     
-    combineExpansionOriginalWordsWeightDifferent(originalWords, 
-                                                expansionWordsSelect, 
-                                                0.5, 
-                                                'I:\\bibm2016\\experiments\\cds2015\\query\\final2\\2015GoogleOriginalMeshSynonymNormal_007_3_05.query')
+    #combineExpansionOriginalWordsWeightDifferent(originalWords, 
+     #                                           expansionWordsSelect, 
+      #                                          0.5, 
+    
+       #                                         'I:\\bibm2016\\experiments\\cds2015\\query\\final2\\2015GoogleOriginalMeshSynonymNormal_007_3_05.query')
     #adjustWeight(1,9,1, originalWords, expansionWordsSelect)
     #adjustExpansionWordsNumber(expansionMeshWordsCollect)
     
