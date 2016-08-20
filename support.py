@@ -77,7 +77,7 @@ def loadMeshTerms(field):
                 meshTermLower += term.lower()+' '
             meshTermLower = meshTermLower.strip()
             if meshTermLower not in meshTermsDict:
-                meshTermsDict[meshTermLower] = 1
+                meshTermsDict[meshTermLower] = lineArr[1].strip()
                
     return meshTermsDict
 

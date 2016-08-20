@@ -84,6 +84,17 @@ def loadMeshTermsSynonym():
     #support.printDict(meshTermSynonymDict, 1)
     return meshTermSynonymDict
 
+def loadMeshTreeCode():
+    meshTermSynonymDict = loadMeshTermsSynonym()
+    meshTermsDict = support.loadMeshTerms('disease')
+    meshTermsDictCopy = copy.deepcopy(meshTermsDict)
+    for meshTerm in meshTermsDict:
+        if meshTerm in meshTermSynonymDict:
+            for meshTermSynonym in meshTermSynonymDict[meshTerm]:
+                meshTermsDictCopy[meshTermSynonym] = meshTermsDict[meshTerm]
+    #support.printDict(meshTermsDictCopy, 1)
+    return meshTermsDictCopy
+
 def collectExpansionMeshTerms(titleFile, snipFile, hasSynonym):
     meshTermsDict = support.loadMeshTerms('disease')
     if hasSynonym=='hasSynonym':
@@ -265,9 +276,76 @@ def beFunction(n,m):
     m = m*1.0
     f = (m+0.5)*np.log2(n/m)+(n-m)*np.log2(n)
     return f
+
+
+def calculatePageRank(expansionMeshWordsCollect):
+    import pageRank
+    meshTreeCodeDict = loadMeshTreeCode()
+    queryId = '24'
     
+    meshTermAndCodeDict = {}
+    meshTermId = 0
+    for word in expansionMeshWordsCollect[queryId]:
+        meshTermAndCodeDict[meshTermId] = [word, meshTreeCodeDict[word]]
+        meshTermId += 1
+    meshTermId = 0
+    meshTermCount = len(meshTermAndCodeDict)
+    #support.printDict(meshTermAndCodeDict, 1)
+    mullist=[[0]*meshTermCount for row in range(meshTermCount)]
+    rankTotalDistance = [0]*meshTermCount
+    for i in range(meshTermCount):
+        code1 = meshTermAndCodeDict[i][1]
+        for j in range(meshTermCount):
+            code2 = meshTermAndCodeDict[j][1]
+            if i==j:
+                mullist[i][j] = 0.0
+            else:
+                if len(code1)>=len(code2):
+                    mullist[i][j] = calculateDistanceInMeshTree(10, code1, code2)
+                    rankTotalDistance[i] += mullist[i][j]
+                else:
+                    mullist[i][j] = calculateDistanceInMeshTree(10, code1, code2)/2
+                    rankTotalDistance[i] += mullist[i][j]
+                
+    for i in range(meshTermCount):
+        for j in range(meshTermCount): 
+            mullist[i][j] = mullist[i][j]*1.0/rankTotalDistance[i]
+    
+    U = [[1]*meshTermCount for row in range(meshTermCount)]
+    n = meshTermCount
+    alpha=0.85
+    f = []
+    for i in range(meshTermCount):
+        word = meshTermAndCodeDict[i][0]
+        totalTf = 0
+        for feedbackDocId in expansionMeshWordsCollect[queryId][word]:
+            totalTf += expansionMeshWordsCollect[queryId][word][feedbackDocId]
+        f.append(totalTf)
+        totalTf = 0
+    pageRankValue = pageRank.pageRank(mullist, U, f, alpha, n)
+    print pageRankValue
+    return 0    
+
+def calculateDistanceInMeshTree(Numerator, code1, code2):
+    codeDistance = 0
+    code1List = code1.strip().split('.')
+    code2List = code2.strip().split('.')
+    code1length = len(code1List)
+    code2length = len(code2List)
+    shareDistance = 0
+    if code1length>code2length:
+        shareDistance = code2length
+    elif code1length<=code2length:
+        shareDistance = code1length
+    sameCodeCount = 0
+    for codeIndex in range(shareDistance):
+        if code1List[codeIndex]==code2List[codeIndex]:
+            sameCodeCount += 1
+    codeDistance = (code1length-sameCodeCount)+(code2length-sameCodeCount)+1
+    return Numerator*1.0/codeDistance
 
 def findDiagnosis(expansionWordsDashboard):
+    meshTreeCodeDict = loadMeshTreeCode()
     import re
     fp = open('I:\\trec2015\\2015bquery18.txt')
     txt = fp.read()
@@ -284,10 +362,11 @@ def findDiagnosis(expansionWordsDashboard):
     for queryId in diagnosisDict:
         #print diagnosisDict[queryId]
         if diagnosisDict[queryId] in expansionWordsDashboard[queryId].keys():
-            print queryId, diagnosisDict[queryId], expansionWordsDashboard[queryId][diagnosisDict[queryId]]
+            print queryId, diagnosisDict[queryId], expansionWordsDashboard[queryId][diagnosisDict[queryId]], meshTreeCodeDict[diagnosisDict[queryId]]
     return 0
 
 def selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, termCountThreshold, termRankThreshold):
+    meshTreeCodeDict = loadMeshTreeCode()
     expansionWordsCollectNormal = {}
     #stopWordMeshTermDict = {'fever','emergency'}
     for queryId in expansionMeshWordsTfIdf:
@@ -317,7 +396,7 @@ def selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, termCountThreshol
                     expansionWordsSelect[queryId][itemSingle] = item[1]/maxProb
                     count += 1
                     #NormalZ += item[1]
-                    print queryId, item[0], item[1], count
+                    print queryId, item[0], item[1], count, meshTreeCodeDict[item[0]]
                     if item[0] not in expansionWordsDashboard[queryId]:
                         expansionWordsDashboard[queryId][item[0]] = [item[1], count]
         #for expansionTerm in expansionWordsSelect[queryId]:
@@ -365,10 +444,10 @@ def adjustExpansionWordsNumber(expansionMeshWordsCollect, originalWords):
     return 0
 
 if __name__ == "__main__":  
-    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
-                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt')
+    #expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
+     #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt')
 
-    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
+    #originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
     
     #expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
      #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt',
@@ -377,28 +456,39 @@ if __name__ == "__main__":
     #support.storeweakClassArr(expansionMeshWordsCollect, 
      #                         'H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt')
      
-    #expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
+    expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
     
     #expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'normalB') 
 
     
-    expansionMeshWordsBe = calculateBe(expansionWordsCollect, 'normalB') 
+    #expansionMeshWordsBe = calculateBe(expansionMeshWordsCollect, 'normalB') 
     
+    expansionMeshWordsPageRank = calculatePageRank(expansionMeshWordsCollect)
+    
+    #dis = calculateDistanceInMeshTree('C08.381.495.389','C08.381.495.146.567')
+    #print dis
     #support.printDict(expansionMeshWordsBe, 2)
     
     #expansionMeshWordsCollect = meshExpansionWordsAddTfIdf(expansionWordsCollect, expansionMeshWordsCollect)
     ##expansionWordsCollect = expansionWordsAddTfIdfInformation(expansionWordsCollect)
     
-    expansionWordsSelect, expansionWordsDashboard = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBe, 
-                                                                                      0.01, 
-                                                                                      3)
+    #expansionWordsSelect, expansionWordsDashboardBe = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBe, 
+       #                                                                               0.01, 
+        #                                                                              40)
     
-    findDiagnosis(expansionWordsDashboard)
+    #findDiagnosis(expansionWordsDashboardBe)
     
-    combineExpansionOriginalWordsWeightDifferent(originalWords, 
-                                                expansionWordsSelect, 
-                                                0.5,    
-                                                'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\2015HowToScenarioGoogleBoeNormalB_001_3_05.query')
+    #expansionWordsSelect, expansionWordsDashboardTfIdf = selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, 
+     #                                                                                 0.01, 
+      #                                                                                40)
+    
+    #findDiagnosis(expansionWordsDashboardTfIdf)
+    
+    
+    #combineExpansionOriginalWordsWeightDifferent(originalWords, 
+     #                                           expansionWordsSelect, 
+      #                                          0.5,    
+       #                                         'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\2015HowToScenarioGoogleBoeNormalB_001_3_05.query')
     #adjustWeight(1,9,1, originalWords, expansionWordsSelect)
     #adjustExpansionWordsNumber(expansionMeshWordsCollect)
     
