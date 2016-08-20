@@ -85,7 +85,6 @@ def loadMeshTermsSynonym():
     return meshTermSynonymDict
 
 def collectExpansionMeshTerms(titleFile, snipFile, hasSynonym):
-    stopWordMeshTermDict = {'pain', 'disease'}
     meshTermsDict = support.loadMeshTerms('disease')
     if hasSynonym=='hasSynonym':
         meshTermSynonymDict = loadMeshTermsSynonym()
@@ -162,113 +161,102 @@ def collectExpansionMeshTerms(titleFile, snipFile, hasSynonym):
     
     return expansionMeshWordsCollect
 
-def expansionWordsTfIdf(expansionWordsCollect):
-    queryTermCount = {}
-    queryTermDoumentfreq = {}
-    for query in expansionWordsCollect:
-        queryTermCount[query] = 0
-        for term in expansionWordsCollect[query]:
-            queryTermCount[query] += expansionWordsCollect[query][term]
-            if term not in queryTermDoumentfreq:
-                queryTermDoumentfreq[term] = {}
-            if query not in queryTermDoumentfreq[term]:
-                queryTermDoumentfreq[term][query] = 1
-    
-    #print  queryTermCount[query]
-              
-    queryTermInverseDoumentfreq = {}
-    queryCount = len(queryTermCount)
-    for term in queryTermDoumentfreq:
-        queryTermDoumentfreq[term] = len(queryTermDoumentfreq[term])
-        queryTermInverseDoumentfreq[term] = queryCount*1.0/queryTermDoumentfreq[term]
-        #print term, queryTermDoumentfreq[term]
-    return queryTermCount, queryTermInverseDoumentfreq
-
-def expansionWordsAddTfIdfInformation(expansionWordsCollect):
-    queryTermCount, queryTermInverseDoumentfreq = expansionWordsTfIdf(expansionWordsCollect)
-    for queryId in expansionWordsCollect:
-        for word in expansionWordsCollect[queryId]:
-            idf = 0.0
-            tf = 0.0
-            idf = queryTermInverseDoumentfreq[word]
-            tf = expansionWordsCollect[queryId][word]*1.0/queryTermCount[queryId]
-            expansionWordsCollect[queryId][word] = tf*idf
-    
-    return expansionWordsCollect
-
-def min_mine(array):
-    min_mine=100
-    for item in array:
-        if float(item)<min_mine:
-            min_mine=float(item)
-    return min_mine
-
-def combineToOneDistributon(wordOfMeshTermList):
-    wordDistributionOfOneQuery = {}
-    tfList = []
-   
-    for feedbackDocId in range(10):
-        feedbackDocIdTag = 1
-        for wordDict in wordOfMeshTermList:
-            if feedbackDocId not in wordDict:
-                feedbackDocIdTag = 0
-                
-            else:
-                tfList.append(wordDict[feedbackDocId])
-                  
-        if feedbackDocIdTag!=0:
-            #print tfList
-            miniTf = min_mine(tfList)
-            wordDistributionOfOneQuery[feedbackDocId] = miniTf
-    print  '2 ',wordOfMeshTermList       
-    print wordDistributionOfOneQuery
-    return wordDistributionOfOneQuery
-
-def calculateTfIdf(expansionWordsCollect):
+def calculateTfIdf(expansionWordsCollect, normalOption):
     tfIdfMeshWordsDict = {}
-    for queryId in expansionWordsCollect:
-        tfIdfMeshWordsDict[queryId] = {}
-        for word in expansionWordsCollect[queryId]:
-            tfIdfMeshWordsDict[queryId][word] = 0
-            idf = 0.0
-            tf = 0.0
-            n = 0
-            #idf = np.log2((10+1)*1.0/(len(expansionWordsCollect[queryId][word])+0.5))
-            for queryId2 in expansionWordsCollect:
-                if word in expansionWordsCollect[queryId2]:
-                    n += len(expansionWordsCollect[queryId2][word])
-            idf = np.log2((300+1)*1.0/(n+0.5))
-            n = 0
-            for feedbackDocId in expansionWordsCollect[queryId][word]:
-                tf += expansionWordsCollect[queryId][word][feedbackDocId]*1.0
-            tfIdfMeshWordsDict[str(queryId)][word] = tf*idf
+    if normalOption=='no':
+        for queryId in expansionWordsCollect:
+            tfIdfMeshWordsDict[queryId] = {}
+            for word in expansionWordsCollect[queryId]:
+                tfIdfMeshWordsDict[queryId][word] = 0
+                idf = 0.0
+                tf = 0.0
+                n = 0
+                idf = np.log2((10+1)*1.0/(len(expansionWordsCollect[queryId][word])+0.5))
+                #for queryId2 in expansionWordsCollect:
+                 #   if word in expansionWordsCollect[queryId2]:
+                  #      n += len(expansionWordsCollect[queryId2][word])
+                #idf = np.log2((300+1)*1.0/(n+0.5))
+                n = 0
+                for feedbackDocId in expansionWordsCollect[queryId][word]:
+                    tfIdfMeshWordsDict[str(queryId)][word] += expansionWordsCollect[queryId][word][feedbackDocId]*1.0*idf
+                #tfIdfMeshWordsDict[str(queryId)][word] = tf*idf
+    elif normalOption=='normalB':
+        for queryId in expansionWordsCollect:
+            tfIdfMeshWordsDict[queryId] = {}
+            for word in expansionWordsCollect[queryId]:
+                tfIdfMeshWordsDict[queryId][word] = 0
+                idf = 0.0
+                tf = 0.0
+                totalTf = 0.0
+                n = 0
+                normalB = 0.0
+                n = len(expansionWordsCollect[queryId][word])
+                idf = np.log2((10+1)*1.0/(n+0.5))
+                for feedbackDocId in expansionWordsCollect[queryId][word]:
+                    totalTf += expansionWordsCollect[queryId][word][feedbackDocId]
+                #for queryId2 in expansionWordsCollect:
+                 #   if word in expansionWordsCollect[queryId2]:
+                  #      n += len(expansionWordsCollect[queryId2][word])
+                #idf = np.log2((300+1)*1.0/(n+0.5))
+                
+                for feedbackDocId in expansionWordsCollect[queryId][word]:
+                    tf = expansionWordsCollect[queryId][word][feedbackDocId]*1.0
+                    normalB = (totalTf+1)*1.0/(n*(tf+1))
+                    tfIdfMeshWordsDict[str(queryId)][word] += tf*idf*normalB
+                    
+                totalTf = 0.0    
+                n = 0
     return tfIdfMeshWordsDict
 
-def calculateBe(expansionWordsCollect):
+def calculateBe(expansionWordsCollect, normalOption):
     beMeshWordsDict = {}
     feedbackDocCount = 10
     Be = 0.0
     totalTf = 0.0
     tf = 0.0
-    for queryId in expansionWordsCollect:
-        beMeshWordsDict[queryId] = {}
-        for word in expansionWordsCollect[queryId]:
-            beMeshWordsDict[queryId][word] = 0.0
-            for feedbackDocId in expansionWordsCollect[queryId][word]:
-                totalTf += expansionWordsCollect[queryId][word][feedbackDocId]
-            totalTf += 0.1
-            for feedbackDocId in range(feedbackDocCount):
-                if feedbackDocId in expansionWordsCollect[queryId][word]:
-                    tf = expansionWordsCollect[queryId][word][feedbackDocId]
-                    Be += -np.log2(feedbackDocCount - 1)-np.log2(np.e)+beFunction(feedbackDocCount+totalTf-1,feedbackDocCount+totalTf-tf-2)\
-                    -beFunction(totalTf, totalTf-tf)
-                else:
-                    tf = 0.0
-                    Be += -np.log2(feedbackDocCount - 1)-np.log2(np.e)+beFunction(feedbackDocCount+totalTf-1,feedbackDocCount+totalTf-tf-2)\
-                    -beFunction(totalTf, totalTf-tf)
-            beMeshWordsDict[queryId][word] = Be
-            Be = 0.0
-    
+    if normalOption == 'no':
+        for queryId in expansionWordsCollect:
+            beMeshWordsDict[queryId] = {}
+            for word in expansionWordsCollect[queryId]:
+                beMeshWordsDict[queryId][word] = 0.0
+                for feedbackDocId in expansionWordsCollect[queryId][word]:
+                    totalTf += expansionWordsCollect[queryId][word][feedbackDocId]
+                totalTf += 0.1
+                for feedbackDocId in range(feedbackDocCount):
+                    if feedbackDocId in expansionWordsCollect[queryId][word]:
+                        tf = expansionWordsCollect[queryId][word][feedbackDocId]
+                        Be += -np.log2(feedbackDocCount - 1)-np.log2(np.e)+beFunction(feedbackDocCount+totalTf-1,feedbackDocCount+totalTf-tf-2)\
+                        -beFunction(totalTf, totalTf-tf)
+                    else:
+                        tf = 0.0
+                        Be += 0.0#-np.log2(feedbackDocCount - 1)-np.log2(np.e)+beFunction(feedbackDocCount+totalTf-1,feedbackDocCount+totalTf-tf-2)\
+                        #-beFunction(totalTf, totalTf-tf)
+                beMeshWordsDict[queryId][word] = Be
+                Be = 0.0
+                totalTf = 0.0
+                
+    elif normalOption == 'normalB':
+        for queryId in expansionWordsCollect:
+            beMeshWordsDict[queryId] = {}
+            for word in expansionWordsCollect[queryId]:
+                beMeshWordsDict[queryId][word] = 0.0
+                n = len(expansionWordsCollect[queryId][word])
+                for feedbackDocId in expansionWordsCollect[queryId][word]:
+                    totalTf += expansionWordsCollect[queryId][word][feedbackDocId]
+                totalTf += 0.1
+                for feedbackDocId in range(feedbackDocCount):
+                    if feedbackDocId in expansionWordsCollect[queryId][word]:
+                        tf = expansionWordsCollect[queryId][word][feedbackDocId]
+                        normalB = (totalTf+1)*1.0/(n*(tf+1))  
+                        Be += (-np.log2(feedbackDocCount - 1)-np.log2(np.e)+beFunction(feedbackDocCount+totalTf-1,feedbackDocCount+totalTf-tf-2)\
+                        -beFunction(totalTf, totalTf-tf))*normalB
+                    else:
+                        tf = 0.0
+                        Be += 0.0#-np.log2(feedbackDocCount - 1)-np.log2(np.e)+beFunction(feedbackDocCount+totalTf-1,feedbackDocCount+totalTf-tf-2)\
+                        #-beFunction(totalTf, totalTf-tf)
+                beMeshWordsDict[queryId][word] = Be
+                Be = 0.0
+                totalTf = 0.0
     return beMeshWordsDict
 
 def beFunction(n,m):
@@ -299,55 +287,18 @@ def findDiagnosis(expansionWordsDashboard):
             print queryId, diagnosisDict[queryId], expansionWordsDashboard[queryId][diagnosisDict[queryId]]
     return 0
 
-def meshExpansionWordsAddTfIdf(expansionWordsCollect, expansionMeshWordsCollect):
-    
-   # queryTermCount, queryTermInverseDoumentfreq = expansionWordsTfIdf(expansionWordsCollect)
-    
-    tfIdfMeshWordsDict = {}            
-    
-    for queryId in range(1,len(expansionWordsCollect)+1):
-        tfIdfMeshWordsDict[str(queryId)] = {}
-        for word in expansionMeshWordsCollect[str(queryId)]:
-            tfIdfMeshWordsDict[str(queryId)][word] = 0
-            idf = 0.0
-            tf = 0.0
-            if word in expansionWordsCollect[str(queryId)]:
-                idf = 10*1.0/len(expansionWordsCollect[str(queryId)][word])
-                for feedbackDocId in expansionWordsCollect[str(queryId)][word]:
-                    tf += expansionWordsCollect[str(queryId)][word][feedbackDocId]*1.0
-                tfIdfMeshWordsDict[str(queryId)][word] = tf*idf
-            else:
-                wordList = word.strip().split(' ')
-                wordOfMeshTermList = []
-                for wordSingle in wordList:
-                    if wordSingle in expansionWordsCollect[str(queryId)]:
-                        print '1 ',expansionWordsCollect[str(queryId)][wordSingle]
-                        wordOfMeshTermList.append(expansionWordsCollect[str(queryId)][wordSingle])
-                        
-                if wordOfMeshTermList == []:
-                   print word
-                        
-                wordDistributionOfOneQuery = combineToOneDistributon(wordOfMeshTermList)
-                idf = 10*1.0/len(wordDistributionOfOneQuery)
-                
-                for feedbackDocId in wordDistributionOfOneQuery:
-                    tf += wordDistributionOfOneQuery[feedbackDocId]*1.0
-                tfIdfMeshWordsDict[str(queryId)][word] = tf*idf
-                 
-    support.printDict(tfIdfMeshWordsDict, 2)
-            
-    return expansionMeshWordsCollect
-
 def selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, termCountThreshold, termRankThreshold):
     expansionWordsCollectNormal = {}
-    
+    #stopWordMeshTermDict = {'fever','emergency'}
     for queryId in expansionMeshWordsTfIdf:
         ZNormal = 0.0
         expansionWordsCollectNormal[queryId] = {}
         for word in expansionMeshWordsTfIdf[queryId]:
-            ZNormal += expansionMeshWordsTfIdf[queryId][word]
+            #if word not in stopWordMeshTermDict:
+                ZNormal += expansionMeshWordsTfIdf[queryId][word]
         for word in expansionMeshWordsTfIdf[queryId]:
-            expansionWordsCollectNormal[queryId][word] = expansionMeshWordsTfIdf[queryId][word]*1.0/ZNormal
+            #if word not in stopWordMeshTermDict:
+                expansionWordsCollectNormal[queryId][word] = expansionMeshWordsTfIdf[queryId][word]*1.0/ZNormal
             
     expansionWordsSelect = {}
     expansionWordsDashboard = {}
@@ -414,8 +365,8 @@ def adjustExpansionWordsNumber(expansionMeshWordsCollect, originalWords):
     return 0
 
 if __name__ == "__main__":  
-    #expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
-     #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt')
+    expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
+                          'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt')
 
     originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
     
@@ -426,19 +377,20 @@ if __name__ == "__main__":
     #support.storeweakClassArr(expansionMeshWordsCollect, 
      #                         'H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt')
      
-    expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
+    #expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
     
-    expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect) 
+    #expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'normalB') 
+
     
-    #expansionMeshWordsBe= calculateBe(expansionWordsCollect) 
+    expansionMeshWordsBe = calculateBe(expansionWordsCollect, 'normalB') 
     
     #support.printDict(expansionMeshWordsBe, 2)
     
     #expansionMeshWordsCollect = meshExpansionWordsAddTfIdf(expansionWordsCollect, expansionMeshWordsCollect)
     ##expansionWordsCollect = expansionWordsAddTfIdfInformation(expansionWordsCollect)
     
-    expansionWordsSelect, expansionWordsDashboard = selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, 
-                                                                                      0.05, 
+    expansionWordsSelect, expansionWordsDashboard = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBe, 
+                                                                                      0.01, 
                                                                                       3)
     
     findDiagnosis(expansionWordsDashboard)
@@ -446,7 +398,7 @@ if __name__ == "__main__":
     combineExpansionOriginalWordsWeightDifferent(originalWords, 
                                                 expansionWordsSelect, 
                                                 0.5,    
-                                                'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\2015HowToScenarioGoogleTfIdfMeshSynonymNormal_005_3_05.query')
+                                                'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\2015HowToScenarioGoogleBoeNormalB_001_3_05.query')
     #adjustWeight(1,9,1, originalWords, expansionWordsSelect)
     #adjustExpansionWordsNumber(expansionMeshWordsCollect)
     

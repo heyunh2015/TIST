@@ -99,7 +99,7 @@ if __name__=='__main__':
         for postFileIndex in range(preFileIndex+1, len(fileList)):
             (z_statistic, p_value) = significanceTest(fileList[preFileIndex]+'.eval',
                                                       fileList[postFileIndex]+'.eval',
-                                                      'P10')
+                                                      'infNDCG')
             if p_value<0.05:
                 print fileList[preFileIndex], fileList[postFileIndex], p_value
     
