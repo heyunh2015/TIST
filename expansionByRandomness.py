@@ -429,7 +429,7 @@ def selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, termCountThreshol
                     expansionWordsSelect[queryId][itemSingle] = item[1]/maxProb
                     count += 1
                     #NormalZ += item[1]
-                    #print queryId, item[0], item[1], count, meshTreeCodeDict[item[0]]
+                    print queryId, item[0], item[1], count#, meshTreeCodeDict[item[0]]
                     if item[0] not in expansionWordsDashboard[queryId]:
                         expansionWordsDashboard[queryId][item[0]] = [item[1], count]
         #for expansionTerm in expansionWordsSelect[queryId]:
@@ -462,7 +462,7 @@ def adjustWeight(lowIndex, highIndex, unit, originalWords, expansionWordsSelect)
         combineExpansionOriginalWordsWeightDifferent(originalWords, 
                                                 expansionWordsSelect, 
                                                 expansionWordsWeight*1.0/10, 
-                                                'I:\\bibm2016\\experiments\\cds2014\\query\\differentWeightAmongExpansionWords\\2014HowToScenarioGoogleMeshNormal_01_3_0'+str(expansionWordsWeight)+'.query')
+                                                'I:\\bibm2016\\experiments\\cds2014\\query\\final3\\weightBoe\\2014HowToScenarioGoogleBoeMeshSynonymNormalB_001_3_0'+str(expansionWordsWeight)+'_5.query')
     return 0
 
 def adjustExpansionWordsNumber(expansionMeshWordsCollect, originalWords):
@@ -477,60 +477,60 @@ def adjustExpansionWordsNumber(expansionMeshWordsCollect, originalWords):
     return 0
 
 def adjustProgressControl():
-    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
-    expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
-    #expansionMeshWordsBe = calculateBe(expansionMeshWordsCollect, 'normalB') 
-    expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'no')
+    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2014\\query\\2014OriginalQuery.txt')
+    expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect2014.txt') 
+    expansionMeshWordsBe = calculateBe(expansionMeshWordsCollect, 'normalB') 
+    #expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'no')
     
     for progressControl in range(1,21):
         meshTermPageRankValueAll = calculatePageRank(expansionMeshWordsCollect, progressControl*1.0/10)
-        expansionMeshWordsBePage = combineStatisticAndPageRank(expansionMeshWordsTfIdf,  meshTermPageRankValueAll)
+        expansionMeshWordsBePage = combineStatisticAndPageRank(expansionMeshWordsBe,  meshTermPageRankValueAll)
         
         expansionWordsSelect, expansionWordsDashboardBe = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBePage, 
                                                                                           0.01, 
                                                                                           3)
-        findDiagnosis(expansionWordsDashboardBe)
+        #findDiagnosis(expansionWordsDashboardBe)
         combineExpansionOriginalWordsWeightDifferent(originalWords, 
                                                     expansionWordsSelect, 
                                                     0.5,    
-                                                    'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\progressControlTfIdf\\2015HowToScenarioGoogleTfIdfMeshSynonymNormal_001_3_05_'+str(progressControl)+'.query')
+                                                    'I:\\bibm2016\\experiments\\cds2014\\query\\final3\\progressControlBoe\\2014HowToScenarioGoogleBoeMeshSynonymNormalB_001_3_05_'+str(progressControl)+'.query')
     return 0
 
 if __name__ == "__main__":  
-    #expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
-     #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt')
+    #expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2014HowToScenario\\parse_title.txt',
+     #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2014HowToScenario\\parse_snip.txt')
 
-    #originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
+    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2014\\query\\2014OriginalQuery.txt')
     
-    #expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
-     #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt',
+    #expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2014HowToScenario\\parse_title.txt',
+     #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2014HowToScenario\\parse_snip.txt',
       #                    'hasSynonym')  
        #                     #'noSynonym')
     #support.storeweakClassArr(expansionMeshWordsCollect, 
-     #                         'H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt')
+     #                         'H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect2014.txt')
      
-    #expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
+    expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect2014.txt') 
     
-    #expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'normalB') 
+    #expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'no') 
 
     
-    #expansionMeshWordsBe = calculateBe(expansionMeshWordsCollect, 'normalB') 
+    expansionMeshWordsBe = calculateBe(expansionMeshWordsCollect, 'normalB') 
     
-    #meshTermPageRankValueAll = calculatePageRank(expansionMeshWordsCollect, 1.5)
+    meshTermPageRankValueAll = calculatePageRank(expansionMeshWordsCollect, 0.5)
     
-    #expansionMeshWordsBePage = combineStatisticAndPageRank(expansionMeshWordsBe,  meshTermPageRankValueAll)
+    expansionMeshWordsBePage = combineStatisticAndPageRank(expansionMeshWordsBe,  meshTermPageRankValueAll)
     
-    #expansionWordsSelect, expansionWordsDashboardBe = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBePage, 
-         #                                                                            0.01, 
-           #                                                                           3)
+    expansionWordsSelect, expansionWordsDashboardBe = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBePage, 
+                                                                                     0.01, 
+                                                                                      3)
     
     #findDiagnosis(expansionWordsDashboardBe)
     
     #combineExpansionOriginalWordsWeightDifferent(originalWords, 
      #                                           expansionWordsSelect, 
       #                                          0.5,    
-       #                                         'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\progressControl\\2015HowToScenarioGoogleBoeMeshSynonymNormalB_001_3_05.query')
-    #adjustWeight(1,9,1, originalWords, expansionWordsSelect)
+       #                                         'I:\\bibm2016\\experiments\\cds2014\\query\\final3\\2014HowToScenarioGoogleBoeNormalB_001_3_05.query')
+    adjustWeight(1,9,1, originalWords, expansionWordsSelect)
     #adjustExpansionWordsNumber(expansionMeshWordsCollect)
-    adjustProgressControl()
+    #adjustProgressControl()
     

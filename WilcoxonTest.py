@@ -92,7 +92,7 @@ if __name__=='__main__':
      #                                         'I:\\bibm2016\\experiments\\cds2014\\eval\\final\\BM25b0.75_1911.res.eval',
       #                                        'infNDCG')       
     #print (z_statistic, p_value)
-    fileList = support.getResultFileNameFromFile('I:\\bibm2016\\experiments\\cds2015\\eval\\final3', 
+    fileList = support.getResultFileNameFromFile('I:\\bibm2016\\experiments\\cds2014\\eval\\final3', 
                                                 'H:\\Users2016\\hy\\workspace\\bibm2016\\significanceTest\\testFile.txt')
     
     for preFileIndex in range(0, len(fileList)):

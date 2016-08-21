@@ -68,9 +68,9 @@ def threeDplotResults(filesNameList, metric):
 if __name__ == "__main__": 
     #filesNameList = support.getResultFileNameFromFile('I:\\trec2016\\testMethodIn2015Data\\adjustPesudoRelevanceParameters\\eval', 
      #                                         'H:\\Users2016\\hy\\workspace\\trec16Python\\resultFileNames\\toBeAnalyizedResults\\adjustPesudoRelevanceFeedback.txt')
-    filesNameList = support.getResultFileNameFromFolder('I:\\bibm2016\\experiments\\cds2015\\eval\\final3\\progressControlTfIdf') 
+    filesNameList = support.getResultFileNameFromFolder('I:\\bibm2016\\experiments\\cds2014\\eval\\final3\\progressControlBoe') 
     resCsv = extractMetricsToString(filesNameList, ['infNDCG', 'iP10'])
-    support.saveFile(resCsv, 'I:\\bibm2016\\experiments\\cds2015\\resultStatistic\\final3_progressControlTfIdf.csv')
+    support.saveFile(resCsv, 'I:\\bibm2016\\experiments\\cds2014\\resultStatistic\\final3_progressControlBoe.csv')
     rankResults(filesNameList, 'infNDCG')
     #plotResults(filesNameList, 'infNDCG')
     #threeDplotResults(filesNameList, 'infNDCG')
