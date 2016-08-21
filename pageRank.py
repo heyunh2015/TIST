@@ -44,7 +44,7 @@ def pageRank(S, U, f, alpha, n):
     G=addMatrix(f1,f2)
     
     
-    print G  #google矩阵
+    #print G  #google矩阵
     
     
     #迭代过程
@@ -52,15 +52,15 @@ def pageRank(S, U, f, alpha, n):
     while(True):
         count=count +1
         pr_next=multiMatrixVector(G,f)
-        print "第 %s 轮迭代" % count
+        #print "第 %s 轮迭代" % count
         #print str(round(pr_next[0],5)) +"\t" + str(round(pr_next[1],5)) + "\t" + str(round(pr_next[2],5)) + "\t" + str(round(pr_next[3],5))
-        res = ''
-        for i in range(len(pr_next)):
-            res += str(round(pr_next[i],5)) +"\t"
-        print res
+        #res = ''
+        #for i in range(len(pr_next)):
+         #   res += str(round(pr_next[i],5)) +"\t"
+        #print res
         totalBias = 0.0
         for i in range(len(pr_next)):
-            totalBias += (round(f[i],1)-round(pr_next[i],1))
+            totalBias += (round(f[i],4)-round(pr_next[i],4))
         if totalBias == 0:
             break
         #if round(f[0],5)==round(pr_next[0],5) and round(f[1],5)==round(pr_next[1],5) and round(f[2],5)==round(pr_next[2],5) and round(f[3],5)==round(pr_next[3],5):   #当前向量与上次向量值偏差不大后，停止迭
@@ -68,7 +68,7 @@ def pageRank(S, U, f, alpha, n):
         f=pr_next
          
     
-    print "Page Rank值已计算完成"
+    #print "Page Rank值已计算完成"
     return f
     
 if __name__ == "__main__":  

@@ -278,19 +278,42 @@ def beFunction(n,m):
     return f
 
 
-def calculatePageRank(expansionMeshWordsCollect):
+def calculatePageRank(expansionMeshWordsCollect, progressControl):
     import pageRank
     meshTreeCodeDict = loadMeshTreeCode()
-    queryId = '24'
-    
-    meshTermAndCodeDict = {}
-    meshTermId = 0
-    for word in expansionMeshWordsCollect[queryId]:
-        meshTermAndCodeDict[meshTermId] = [word, meshTreeCodeDict[word]]
-        meshTermId += 1
-    meshTermId = 0
-    meshTermCount = len(meshTermAndCodeDict)
-    #support.printDict(meshTermAndCodeDict, 1)
+    #queryId = '20'
+    meshTermAndCodeDictAll = {}
+    meshTermPageRankValueAll = {}
+    for queryId in expansionMeshWordsCollect:
+        meshTermAndCodeDictAll[queryId] = {}
+        meshTermPageRankValueAll[queryId] = {}
+        #meshTermAndCodeDict = {}
+        meshTermId = 0
+        for word in expansionMeshWordsCollect[queryId]:
+            meshTermAndCodeDictAll[queryId][meshTermId] = [word, meshTreeCodeDict[word]]
+            meshTermId += 1
+        meshTermId = 0
+        meshTermCount = len(meshTermAndCodeDictAll[queryId])
+        #support.printDict(meshTermAndCodeDict, 1)
+        S = probMatrix(meshTermCount, meshTermAndCodeDictAll[queryId], progressControl)
+        f = calculateOriginalPangRankValue(meshTermCount, meshTermAndCodeDictAll[queryId], expansionMeshWordsCollect[queryId])
+        U = [[1]*meshTermCount for row in range(meshTermCount)]
+        n = meshTermCount
+        alpha=1.0
+        pageRankValue = pageRank.pageRank(S, U, f, alpha, n)
+        
+        #print pageRankValue
+        max = np.max(pageRankValue)
+        for i in range(meshTermCount):
+            word = meshTermAndCodeDictAll[queryId][i][0]
+            #code = meshTermAndCodeDict[i][1]
+            wordPageRankvalue = pageRankValue[i]/max
+            #print queryId, word, wordPageRankvalue
+            meshTermPageRankValueAll[queryId][word] = wordPageRankvalue
+    #support.printDict(meshTermPageRankValueAll, 2)    
+    return meshTermPageRankValueAll    
+
+def probMatrix(meshTermCount, meshTermAndCodeDict, progressControl):
     mullist=[[0]*meshTermCount for row in range(meshTermCount)]
     rankTotalDistance = [0]*meshTermCount
     for i in range(meshTermCount):
@@ -304,27 +327,30 @@ def calculatePageRank(expansionMeshWordsCollect):
                     mullist[i][j] = calculateDistanceInMeshTree(10, code1, code2)
                     rankTotalDistance[i] += mullist[i][j]
                 else:
-                    mullist[i][j] = calculateDistanceInMeshTree(10, code1, code2)/2
+                    mullist[i][j] = calculateDistanceInMeshTree(10, code1, code2)*progressControl
                     rankTotalDistance[i] += mullist[i][j]
                 
     for i in range(meshTermCount):
-        for j in range(meshTermCount): 
-            mullist[i][j] = mullist[i][j]*1.0/rankTotalDistance[i]
+        for j in range(meshTermCount):
+            if rankTotalDistance[i]!=0:
+                mullist[i][j] = mullist[i][j]*1.0/rankTotalDistance[i]
+    rankTotalDistance = [0]*meshTermCount
+    S = np.transpose(mullist)
     
-    U = [[1]*meshTermCount for row in range(meshTermCount)]
-    n = meshTermCount
-    alpha=0.85
+    return S
+
+def calculateOriginalPangRankValue(meshTermCount, meshTermAndCodeDict, expansionMeshWordsCollectOneQuery):
     f = []
-    for i in range(meshTermCount):
-        word = meshTermAndCodeDict[i][0]
-        totalTf = 0
-        for feedbackDocId in expansionMeshWordsCollect[queryId][word]:
-            totalTf += expansionMeshWordsCollect[queryId][word][feedbackDocId]
-        f.append(totalTf)
-        totalTf = 0
-    pageRankValue = pageRank.pageRank(mullist, U, f, alpha, n)
-    print pageRankValue
-    return 0    
+    f = [1]*meshTermCount    
+    #for i in range(meshTermCount):
+     #   word = meshTermAndCodeDict[i][0]
+      #  totalTf = 0
+       # for feedbackDocId in expansionMeshWordsCollectOneQuery[word]:
+        #    totalTf += expansionMeshWordsCollectOneQuery[word][feedbackDocId]
+        #f.append(totalTf)
+        #totalTf = 0
+    #print f
+    return f
 
 def calculateDistanceInMeshTree(Numerator, code1, code2):
     codeDistance = 0
@@ -343,6 +369,13 @@ def calculateDistanceInMeshTree(Numerator, code1, code2):
             sameCodeCount += 1
     codeDistance = (code1length-sameCodeCount)+(code2length-sameCodeCount)+1
     return Numerator*1.0/codeDistance
+
+def combineStatisticAndPageRank(expansionMeshWordsBe,  meshTermPageRankValueAll):
+    expansionMeshWordsBeCopy = copy.deepcopy(expansionMeshWordsBe)
+    for queryId in expansionMeshWordsBeCopy:
+        for word in expansionMeshWordsBeCopy[queryId]:
+            expansionMeshWordsBeCopy[queryId][word] = expansionMeshWordsBe[queryId][word]*meshTermPageRankValueAll[queryId][word]
+    return expansionMeshWordsBeCopy
 
 def findDiagnosis(expansionWordsDashboard):
     meshTreeCodeDict = loadMeshTreeCode()
@@ -396,7 +429,7 @@ def selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, termCountThreshol
                     expansionWordsSelect[queryId][itemSingle] = item[1]/maxProb
                     count += 1
                     #NormalZ += item[1]
-                    print queryId, item[0], item[1], count, meshTreeCodeDict[item[0]]
+                    #print queryId, item[0], item[1], count, meshTreeCodeDict[item[0]]
                     if item[0] not in expansionWordsDashboard[queryId]:
                         expansionWordsDashboard[queryId][item[0]] = [item[1], count]
         #for expansionTerm in expansionWordsSelect[queryId]:
@@ -443,6 +476,26 @@ def adjustExpansionWordsNumber(expansionMeshWordsCollect, originalWords):
                                                 'I:\\bibm2016\\experiments\\cds2014\\query\\expansionWordsNumber\\2014HowToScenarioGoogleMeshNormal_01_'+str(expansionWordsNumber)+'_05.query')
     return 0
 
+def adjustProgressControl():
+    originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
+    expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
+    #expansionMeshWordsBe = calculateBe(expansionMeshWordsCollect, 'normalB') 
+    expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'no')
+    
+    for progressControl in range(1,21):
+        meshTermPageRankValueAll = calculatePageRank(expansionMeshWordsCollect, progressControl*1.0/10)
+        expansionMeshWordsBePage = combineStatisticAndPageRank(expansionMeshWordsTfIdf,  meshTermPageRankValueAll)
+        
+        expansionWordsSelect, expansionWordsDashboardBe = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBePage, 
+                                                                                          0.01, 
+                                                                                          3)
+        findDiagnosis(expansionWordsDashboardBe)
+        combineExpansionOriginalWordsWeightDifferent(originalWords, 
+                                                    expansionWordsSelect, 
+                                                    0.5,    
+                                                    'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\progressControlTfIdf\\2015HowToScenarioGoogleTfIdfMeshSynonymNormal_001_3_05_'+str(progressControl)+'.query')
+    return 0
+
 if __name__ == "__main__":  
     #expansionWordsCollect = collectExpansionWords('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_title.txt',
      #                     'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015HowToScenario\\parse_snip.txt')
@@ -456,39 +509,28 @@ if __name__ == "__main__":
     #support.storeweakClassArr(expansionMeshWordsCollect, 
      #                         'H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt')
      
-    expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
+    #expansionMeshWordsCollect = support.grabweakClassArr('H:\\Users2016\\hy\\workspace\\bibm2016\\collectExpansionWords\\expansionMeshWordsCollect.txt') 
     
     #expansionMeshWordsTfIdf = calculateTfIdf(expansionMeshWordsCollect, 'normalB') 
 
     
     #expansionMeshWordsBe = calculateBe(expansionMeshWordsCollect, 'normalB') 
     
-    expansionMeshWordsPageRank = calculatePageRank(expansionMeshWordsCollect)
+    #meshTermPageRankValueAll = calculatePageRank(expansionMeshWordsCollect, 1.5)
     
-    #dis = calculateDistanceInMeshTree('C08.381.495.389','C08.381.495.146.567')
-    #print dis
-    #support.printDict(expansionMeshWordsBe, 2)
+    #expansionMeshWordsBePage = combineStatisticAndPageRank(expansionMeshWordsBe,  meshTermPageRankValueAll)
     
-    #expansionMeshWordsCollect = meshExpansionWordsAddTfIdf(expansionWordsCollect, expansionMeshWordsCollect)
-    ##expansionWordsCollect = expansionWordsAddTfIdfInformation(expansionWordsCollect)
-    
-    #expansionWordsSelect, expansionWordsDashboardBe = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBe, 
-       #                                                                               0.01, 
-        #                                                                              40)
+    #expansionWordsSelect, expansionWordsDashboardBe = selectExpansionWordsByNormalTfIdf(expansionMeshWordsBePage, 
+         #                                                                            0.01, 
+           #                                                                           3)
     
     #findDiagnosis(expansionWordsDashboardBe)
-    
-    #expansionWordsSelect, expansionWordsDashboardTfIdf = selectExpansionWordsByNormalTfIdf(expansionMeshWordsTfIdf, 
-     #                                                                                 0.01, 
-      #                                                                                40)
-    
-    #findDiagnosis(expansionWordsDashboardTfIdf)
-    
     
     #combineExpansionOriginalWordsWeightDifferent(originalWords, 
      #                                           expansionWordsSelect, 
       #                                          0.5,    
-       #                                         'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\2015HowToScenarioGoogleBoeNormalB_001_3_05.query')
+       #                                         'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\progressControl\\2015HowToScenarioGoogleBoeMeshSynonymNormalB_001_3_05.query')
     #adjustWeight(1,9,1, originalWords, expansionWordsSelect)
     #adjustExpansionWordsNumber(expansionMeshWordsCollect)
+    adjustProgressControl()
     

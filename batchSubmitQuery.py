@@ -16,6 +16,14 @@ def submitQueryExpansionNumber(lowIndex, highIndex, unit):
         ret = os.popen(cmdStr).read().strip()
     return 0
 
+def submitQueryProgressControl(lowIndex, highIndex, unit):
+    for progressControl in range(lowIndex, highIndex+1, unit):
+        cmdStr = 'trec_terrier.sh -r -Dtrec.model=BM25 -c 0.75 -Dtrec.topics=/home/lmy/bibm2016/2015cds/query/final3/progressControlTfIdf/2015HowToScenarioGoogleTfIdfMeshSynonymNormal_001_3_05_'+str(progressControl)+'.query' 
+        print cmdStr
+        ret = os.popen(cmdStr).read().strip()
+    
+    return 0
 if __name__ == "__main__":
     #submitQueryWeight(1,9,1)
-    submitQueryExpansionNumber(1,9,1)
+    #submitQueryExpansionNumber(1,9,1)
+    submitQueryProgressControl(1,20,1)
