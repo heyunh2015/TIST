@@ -65,12 +65,16 @@ def threeDplotResults(filesNameList, metric):
     ax.plot_wireframe(X, Y, listResultsMetric, rstride=1, cstride=1)
     return 0
 
-if __name__ == "__main__": 
-    #filesNameList = support.getResultFileNameFromFile('I:\\trec2016\\testMethodIn2015Data\\adjustPesudoRelevanceParameters\\eval', 
-     #                                         'H:\\Users2016\\hy\\workspace\\trec16Python\\resultFileNames\\toBeAnalyizedResults\\adjustPesudoRelevanceFeedback.txt')
-    filesNameList = support.getResultFileNameFromFolder('I:\\bibm2016\\experiments\\cds2014\\eval\\final3\\progressControlBoe') 
-    resCsv = extractMetricsToString(filesNameList, ['infNDCG', 'iP10'])
-    support.saveFile(resCsv, 'I:\\bibm2016\\experiments\\cds2014\\resultStatistic\\final3_progressControlBoe.csv')
+def batchStatistic(year, files, metric1, metric2):
+    filesNameList = support.getResultFileNameFromFolder('I:\\bibm2016\\experiments\\cds'+year+'\\eval\\final3\\'+files) 
+    resCsv = extractMetricsToString(filesNameList, [metric1, metric2])
+    support.saveFile(resCsv, 'I:\\bibm2016\\experiments\\cds'+year+'\\resultStatistic\\'+year+files+'.csv')
     rankResults(filesNameList, 'infNDCG')
     #plotResults(filesNameList, 'infNDCG')
     #threeDplotResults(filesNameList, 'infNDCG')
+    return 0
+
+if __name__ == "__main__": 
+    #filesNameList = support.getResultFileNameFromFile('I:\\trec2016\\testMethodIn2015Data\\adjustPesudoRelevanceParameters\\eval', 
+     #                                         'H:\\Users2016\\hy\\workspace\\trec16Python\\resultFileNames\\toBeAnalyizedResults\\adjustPesudoRelevanceFeedback.txt')
+    batchStatistic('2016', 'weightBoe', 'infNDCG', 'iP10')

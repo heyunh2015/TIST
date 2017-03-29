@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- 
-import os,re
+import os,re,operator
 SystemPathSeperator = '\\'
 
 def saveFile(string, fileName):
@@ -64,12 +64,29 @@ def isNotStopWords(word, stopWordsDic):
 def loadMeshTerms(field):
     if field=='disease':
         meshClass = 'C'
-    meshTermFile = 'I:\\bibm2016\\experiments\\mesh\\mtrees2015.bin'
-    meshTermsDict = {}
-    fp = open(meshTermFile)
-    for line in fp.readlines():
-        lineArr = line.strip().split(';')
-        if lineArr[1][0]==meshClass:
+        meshTermFile = 'I:\\bibm2016\\experiments\\mesh\\mtrees2015.bin'
+        meshTermsDict = {}
+        fp = open(meshTermFile)
+        for line in fp.readlines():
+            lineArr = line.strip().split(';')
+            if lineArr[1][0]==meshClass:
+                meshTerm = removePunctuation(lineArr[0])
+                meshTermLower = ''
+                meshTermList = meshTerm.strip().split(' ')
+                for term in meshTermList:
+                    meshTermLower += term.lower()+' '
+                meshTermLower = meshTermLower.strip()
+                if meshTermLower not in meshTermsDict:
+                    meshTermsDict[meshTermLower] = lineArr[1].strip()
+                    
+    if field=='all':
+        #meshClass = 'C'
+        meshTermFile = 'I:\\bibm2016\\experiments\\mesh\\mtrees2015.bin'
+        meshTermsDict = {}
+        fp = open(meshTermFile)
+        for line in fp.readlines():
+            lineArr = line.strip().split(';')
+            #if lineArr[1][0]==meshClass:
             meshTerm = removePunctuation(lineArr[0])
             meshTermLower = ''
             meshTermList = meshTerm.strip().split(' ')
@@ -77,13 +94,15 @@ def loadMeshTerms(field):
                 meshTermLower += term.lower()+' '
             meshTermLower = meshTermLower.strip()
             if meshTermLower not in meshTermsDict:
-                meshTermsDict[meshTermLower] = lineArr[1].strip()
-               
+                meshTermsDict[meshTermLower] = lineArr[1].strip()           
     return meshTermsDict
 
-def loadMeshTermsSynonym():
+def loadMeshTermsSynonym(meshFile):
     meshTermSynonymDict = {}
-    meshTermSynonymFile = 'I:\\bibm2016\\experiments\\mesh\\MeSHWords.txt'
+    if meshFile=='disease':
+        meshTermSynonymFile = 'I:\\bibm2016\\experiments\\mesh\\MeSHWords_disease.txt'
+    elif meshFile=='all':
+        meshTermSynonymFile = 'I:\\bibm2016\\experiments\\mesh\\MeSHWords.txt'
     fp = open(meshTermSynonymFile)
     for line in fp.readlines():
         lineArr = line.strip().split(':')
@@ -147,3 +166,11 @@ def grabweakClassArr(filename):
     import pickle
     fr = open(filename, 'rb')
     return pickle.load(fr) 
+
+def rankDict(dict, keyOrValue):
+    rankResult = ''
+    rankIndex = 0
+    for item in sorted(dict.iteritems(), key=operator.itemgetter(keyOrValue), reverse=True):
+        rankResult += str(item[0])+' '+str(rankIndex)+' '+str(item[1]).replace('\n','')+'\n'
+        rankIndex += 1
+    return rankResult

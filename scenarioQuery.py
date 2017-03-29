@@ -65,8 +65,8 @@ def addScenarioWord(originalQueryFile, scenarioWordsList, scenarioQueryFile):
 if __name__ == "__main__":  
     #interSetResult('I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Original\\parse_title.txt',
      #              'I:\\bibm2016\\experiments\\GoogleSearch\\result\\2015Scenario\\parse_title.txt')
-     addScenarioWord('I:\\bibm2016\\experiments\\GoogleSearch\\data\\2014.CDSid_queryOriginal.txt',
-                     ['diagnosis','test','treatment'],
-                     'I:\\bibm2016\\experiments\\GoogleSearch\\data\\2014.CDSid_queryScenario.txt')
+     addScenarioWord('I:\\bibm2016\\experiments\\GoogleSearch\\data\\2016.CDSid_queryOriginal.txt',
+                     ['how to diagnosis','how to test','how to treatment'],
+                     'I:\\bibm2016\\experiments\\GoogleSearch\\data\\2016.CDSid_queryHowToScenario.txt')
     
     

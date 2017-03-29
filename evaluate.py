@@ -1,7 +1,9 @@
 import support
-
+def batchEvaluate(year, files):
+    support.sampleEvalOnFolder('I:\\bibm2016\\experiments\\cds'+year+'\\evalTool',
+                           'I:\\bibm2016\\experiments\\cds'+year+'\\qrel\\qrels-sampleval-'+year+'.txt',
+                           'I:\\bibm2016\\experiments\\cds'+year+'\\result\\final3\\'+files,
+                           'I:\\bibm2016\\experiments\\cds'+year+'\\eval\\final3\\'+files)
 if __name__ == "__main__":  
-    support.sampleEvalOnFolder('I:\\bibm2016\\experiments\\cds2014\\evalTool',
-                           'I:\\bibm2016\\experiments\\cds2014\\qrel\\qrels-sampleval-2014.txt',
-                           'I:\\bibm2016\\experiments\\cds2014\\result\\final3\\progressControlBoe',
-                           'I:\\bibm2016\\experiments\\cds2014\\eval\\final3\\progressControlBoe')
+    batchEvaluate('2016','weightBoe')
+    

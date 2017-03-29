@@ -14,8 +14,8 @@ def meshTermDictAddSynonym(meshTermsDict, meshTermSynonymDict):
     return meshTermsDictCopy
 
 def collectExpansionMeshTerms(titleFile, snipFile):
-    stopWordMeshTermDict = {'pain', 'disease'}
-    meshTermsDict = support.loadMeshTerms('disease')
+    stopWordMeshTermDict = {}#{'pain', 'disease'}
+    meshTermsDict = support.loadMeshTerms('all')
     #meshTermSynonymDict = loadMeshTermsSynonym()
     #meshTermsDict = meshTermDictAddSynonym(meshTermsDict, meshTermSynonymDict) 
     
@@ -213,7 +213,7 @@ def adjustWeight(lowIndex, highIndex, unit, originalWords, expansionWordsSelect)
                                                 expansionWordsSelect, 
                                                 'yes', 
                                                 expansionWordsWeight*1.0/10, 
-                                                'I:\\bibm2016\\experiments\\cds2015\\query\\2015HowToScenarioGoogleMeshNormal_01_3_0'+str(expansionWordsWeight)+'.query')
+                                                'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\webMesh1\\2015GoogleHowToScenarioMesh_001_3_'+str(expansionWordsWeight)+'.query')
     return 0
 
 if __name__ == "__main__":  
@@ -223,17 +223,16 @@ if __name__ == "__main__":
     originalWords = support.extractOriginalWords('I:\\bibm2016\\experiments\\cds2015\\query\\2015OriginalQuery.txt')
     
     
-    
-    
     expansionMeshWordsCollect = collectExpansionMeshTerms('I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2015\\parse_title.txt',
                           'I:\\bibm2016\\experiments\\GoogleSearch\\result\\HowToScenario2015\\parse_snip.txt')  
 
     expansionMeshWordsCollect = meshExpansionWordsAddstatisticInformation(expansionWordsCollect, expansionMeshWordsCollect)
     expansionWordsSelect = selectExpansionWordsByNormalTfIdf(expansionMeshWordsCollect, 
-                                                0.1, 
+                                                0.01, 
                                                 3)
-    #combineExpansionOriginalWordsWeightSame(originalWords, expansionWordsSelect, 'no', 0.1, 'I:\\bibm2016\\experiments\\cds2015\\query\\2015GoogleOriginalMeshNormal_01_4.query')
-    adjustWeight(1,9,1, originalWords, expansionWordsSelect)
+    
+    #combineExpansionOriginalWordsWeightSame(originalWords, expansionWordsSelect, 'yes', 0.2, 'I:\\bibm2016\\experiments\\cds2015\\query\\final3\\webMesh\\2015GoogleHowToScenarioMesh_001_3.query2')
+    adjustWeight(0,9,1, originalWords, expansionWordsSelect)
     
     
     
